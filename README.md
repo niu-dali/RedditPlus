@@ -519,3 +519,49 @@ Vielen Dank an alle Mitwirkenden und die Open-Source-Community für die Realisie
 Gracias a todos los contribuidores y a la comunidad de código abierto por hacer posible este proyecto.
 
 Благодарим всех участников и сообщество открытого исходного кода за то, что сделали этот проект возможным.
+
+---
+
+## 💰 Support / 支持 / サポート / 후원 / Soutien / Unterstützung / Apoyo / Поддержка
+
+If you find this project helpful, you can support us by scanning the QR codes below:
+
+如果您觉得这个项目对您有帮助，可以通过扫描以下二维码支持我们：
+
+このプロジェクトが役に立った場合は、以下のQRコードをスキャンしてサポートしてください：
+
+이 프로젝트가 도움이 되었다면 아래 QR 코드를 스캔하여 후원해 주세요：
+
+Si vous trouvez ce projet utile, vous pouvez nous soutenir en scannant les codes QR ci-dessous：
+
+Wenn Ihnen dieses Projekt hilfreich ist, können Sie uns durch Scannen der folgenden QR-Codes unterstützen：
+
+Si encuentras útil este proyecto, puedes apoyarnos escaneando los códigos QR a continuación：
+
+Если вы считаете этот проект полезным, вы можете поддержать нас, отсканировав QR-коды ниже：
+
+<div align="center">
+
+### 支付宝 / Alipay
+<img src="icons/0425_32_68.jpg" alt="支付宝收款码" width="200">
+
+### 微信 / WeChat Pay
+<img src="icons/17110426_33_68.jpg" alt="微信收款码" width="200">
+
+</div>
+
+Thank you for your support! 🙏
+
+感谢您的支持！🙏
+
+サポートありがとうございます！🙏
+
+후원해 주셔서 감사합니다！🙏
+
+Merci pour votre soutien！🙏
+
+Danke für Ihre Unterstützung！🙏
+
+¡Gracias por tu apoyo！🙏
+
+Спасибо за вашу поддержку！🙏
