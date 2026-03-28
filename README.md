@@ -22,20 +22,69 @@ RedditPlus is a powerful Chrome extension designed to enhance your Reddit browsi
 
 ### 🚀 Installation
 
-1. Download the extension package
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable "Developer mode" in the top right corner
-4. Click "Load unpacked" and select the extension directory
-5. The extension icon will appear in your browser toolbar
+#### Method 1: Load Unpacked Extension (Recommended for Development)
+
+1. **Download or Clone the Repository**
+   ```bash
+   git clone https://github.com/niu-dali/RedditPlus.git
+   ```
+   Or download the ZIP file and extract it to a local directory.
+
+2. **Open Chrome Extensions Page**
+   - Open Chrome browser
+   - Type `chrome://extensions/` in the address bar and press Enter
+   - Or: Menu (three dots) → More tools → Extensions
+
+3. **Enable Developer Mode**
+   - Find the "Developer mode" toggle in the top right corner
+   - Turn it ON
+
+4. **Load the Extension**
+   - Click "Load unpacked" button
+   - Navigate to and select the `RedditPlus` directory
+   - The extension will be loaded and the icon will appear in your toolbar
+
+#### Method 2: Install from ZIP Package
+
+1. Download the `RedditPlus.zip` package
+2. Extract the ZIP file to a local directory
+3. Follow steps 2-4 from Method 1 above
 
 ### 📋 Usage
 
-1. Click the extension icon to open the main interface
-2. Select the subreddits you want to analyze
-3. Configure crawling parameters (max posts, comments, depth, etc.)
-4. Click "Analyze Selected Subreddits" or "Analyze All Subreddits"
-5. View the results in the dedicated results page
-6. Use AI features to analyze and translate content
+#### Basic Usage
+
+1. **Open the Extension**
+   - Click the RedditPlus icon in your browser toolbar
+   - The main interface will open in a new tab
+
+2. **Select Subreddits**
+   - Browse the list of available subreddits
+   - Check the boxes next to subreddits you want to analyze
+   - Use "Select All" or "Deselect All" for quick selection
+
+3. **Configure Parameters**
+   - **Max Posts**: Number of posts to crawl per subreddit (default: 1000, -1 for unlimited)
+   - **Max Comments**: Number of comments per post (default: 200, -1 for unlimited)
+   - **Depth**: Comment thread depth (default: 10, -1 for unlimited)
+   - **Min Subscribers**: Minimum subscribers for subreddit filtering (default: 5000)
+
+4. **Start Crawling**
+   - Click "Analyze Selected Subreddits" for selected subreddits
+   - Or click "Analyze All Subreddits" for all available subreddits
+   - A progress bar will show the crawling status
+
+5. **View Results**
+   - Click "View Analysis Results" to open the results page
+   - Browse posts by subreddit
+   - Use AI analysis features for content insights
+
+#### Advanced Features
+
+- **Custom Subreddits**: Add your own subreddits by entering the name and description
+- **AI Analysis**: Click the AI icon next to each subreddit for intelligent analysis
+- **Translation**: Content can be translated to your preferred language
+- **Data Management**: Export, delete, or manage crawled data
 
 ### ⚙️ Configuration
 
@@ -72,20 +121,69 @@ RedditPlus 是一个功能强大的 Chrome 扩展程序，旨在增强您的 Red
 
 ### 🚀 安装方法
 
-1. 下载扩展程序包
-2. 打开 Chrome 浏览器，访问 `chrome://extensions/`
-3. 在右上角启用"开发者模式"
-4. 点击"加载已解压的扩展程序"，选择扩展程序目录
-5. 扩展程序图标将出现在浏览器工具栏中
+#### 方法一：加载已解压的扩展程序（推荐开发使用）
+
+1. **下载或克隆仓库**
+   ```bash
+   git clone https://github.com/niu-dali/RedditPlus.git
+   ```
+   或者下载 ZIP 文件并解压到本地目录。
+
+2. **打开 Chrome 扩展程序页面**
+   - 打开 Chrome 浏览器
+   - 在地址栏输入 `chrome://extensions/` 并按回车
+   - 或者：菜单（三个点）→ 更多工具 → 扩展程序
+
+3. **启用开发者模式**
+   - 在右上角找到"开发者模式"开关
+   - 将其打开
+
+4. **加载扩展程序**
+   - 点击"加载已解压的扩展程序"按钮
+   - 导航到并选择 `RedditPlus` 目录
+   - 扩展程序将被加载，图标将出现在工具栏中
+
+#### 方法二：从 ZIP 包安装
+
+1. 下载 `RedditPlus.zip` 安装包
+2. 将 ZIP 文件解压到本地目录
+3. 按照方法一的第 2-4 步操作
 
 ### 📋 使用方法
 
-1. 点击扩展程序图标打开主界面
-2. 选择要分析的板块
-3. 配置爬取参数（最大帖子数、评论数、深度等）
-4. 点击"分析选中板块"或"分析所有板块"
-5. 在专用结果页面查看结果
-6. 使用 AI 功能分析和翻译内容
+#### 基本使用
+
+1. **打开扩展程序**
+   - 点击浏览器工具栏中的 RedditPlus 图标
+   - 主界面将在新标签页中打开
+
+2. **选择板块**
+   - 浏览可用板块列表
+   - 勾选要分析的板块旁边的复选框
+   - 使用"全选"或"取消全选"快速选择
+
+3. **配置参数**
+   - **最大帖子数**：每个板块要爬取的帖子数（默认：1000，-1 表示无限制）
+   - **最大评论数**：每个帖子的评论数（默认：200，-1 表示无限制）
+   - **深度**：评论线程深度（默认：10，-1 表示无限制）
+   - **最小订阅者数**：板块过滤的最小订阅者数（默认：5000）
+
+4. **开始爬取**
+   - 点击"分析选中板块"分析选中的板块
+   - 或点击"分析所有板块"分析所有可用板块
+   - 进度条将显示爬取状态
+
+5. **查看结果**
+   - 点击"查看分析结果"打开结果页面
+   - 按板块浏览帖子
+   - 使用 AI 分析功能获取内容洞察
+
+#### 高级功能
+
+- **自定义板块**：输入名称和描述添加您自己的板块
+- **AI 分析**：点击每个板块旁边的 AI 图标进行智能分析
+- **翻译**：内容可以翻译成您喜欢的语言
+- **数据管理**：导出、删除或管理爬取的数据
 
 ### ⚙️ 配置选项
 

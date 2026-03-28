@@ -1144,8 +1144,10 @@ async function updateSubreddit(subreddit) {
     }
     
     // 保存更新后的结果
-    crawlResults[subreddit] = existingPosts;
-    await saveCrawlResults(crawlResults);
+    const subredditData = {
+      [subreddit]: existingPosts
+    };
+    await saveCrawlResults(subredditData);
     
     return { success: true, postCount: newPostCount, message: `成功更新板块 ${subreddit}，新增 ${newPostCount} 个帖子` };
   } catch (error) {
