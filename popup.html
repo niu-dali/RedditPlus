@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="appName">灵感</title>
+  <style>
+    /* 针对弹出窗口的样式 */
+    body {
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f8f9fa;
+      color: #495057;
+      overflow: auto;
+      font-size: 16px;
+    }
+    
+    /* 针对新标签页的样式 */
+    @media screen and (min-width: 1000px) {
+      body {
+        width: 100%;
+        max-width: none;
+      }
+      
+      .tab-content {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+    }
+    
+    /* 针对弹出窗口的样式 */
+    @media screen and (max-width: 999px) {
+      body {
+        width: 800px;
+        max-width: 100vw;
+      }
+    }
+    /* 隐藏滚动条 */
+    ::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: transparent;
+    }
+    .tab-container {
+      display: flex;
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f8f9fa;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .tab:hover {
+      background-color: #e9ecef;
+    }
+    .tab.active {
+      background-color: #ffffff;
+      color: #0066cc;
+      border-bottom-color: #0066cc;
+      font-weight: 500;
+    }
+    .tab-content {
+      padding: 24px;
+      background-color: #ffffff;
+      min-height: 400px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 24px;
+      color: #0066cc;
+      font-weight: 600;
+      text-align: center;
+    }
+    h2 {
+      font-size: 20px;
+      margin-top: 24px;
+      margin-bottom: 12px;
+      color: #495057;
+      font-weight: 500;
+    }
+    h3 {
+      font-size: 18px;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #495057;
+      font-weight: 500;
+    }
+    h4 {
+      font-size: 16px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      color: #495057;
+      font-weight: 500;
+    }
+    .subreddit-list {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      background-color: #f8f9fa;
+    }
+    .subreddit-item {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: calc(50% - 5px);
+    }
+    .subreddit-item input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    .config-section {
+      margin-bottom: 24px;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #e9ecef;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+    .config-section:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #495057;
+    }
+    input[type="number"] {
+      width: calc(100% - 32px);
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      background-color: #ffffff;
+      box-sizing: border-box;
+    }
+    input[type="number"]:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), 0 2px 8px rgba(0, 102, 204, 0.1);
+      transform: translateY(-1px);
+    }
+    input[type="text"], input[type="password"], select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      background-color: #ffffff;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, select:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15), 0 2px 8px rgba(0, 102, 204, 0.1);
+      transform: translateY(-1px);
+    }
+    /* 美化下拉框选项 */
+    select option {
+      background-color: white;
+      color: black;
+      padding: 10px 15px;
+      border-bottom: 1px solid #e9ecef;
+    }
+    select option:hover {
+      background-color: #e3f2fd;
+      color: black;
+    }
+    select option:checked {
+      background-color: #0066cc;
+      color: white;
+    }
+    /* 下拉框本身的样式 */
+    select {
+      background: white;
+      color: #495057;
+    }
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #0066cc;
+    }
+    button {
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #0066cc, #ffc107);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin-right: 10px;
+      background-size: 200%;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+      animation: gradient 8s ease infinite;
+    }
+    button:hover {
+      background: linear-gradient(135deg, #0052a3, #e0a800);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 102, 204, 0.3);
+      background-size: 200%;
+      animation: gradient 4s ease infinite;
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+      animation: none;
+    }
+    button.secondary {
+      background: linear-gradient(135deg, #ffc107, #0066cc);
+      color: #212529;
+      border: 1px solid #dee2e6;
+      background-size: 200%;
+      box-shadow: 0 2px 4px rgba(255, 193, 7, 0.1);
+      animation: gradient 8s ease infinite;
+    }
+    button.secondary:hover {
+      background: linear-gradient(135deg, #e0a800, #0052a3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+      background-size: 400%;
+      animation: gradient 4s ease infinite;
+    }
+    button.secondary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .result-section {
+      margin-top: 24px;
+      padding: 16px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      background-color: #f8f9fa;
+    }
+    .post-item {
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      background-color: #ffffff;
+    }
+    .post-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #0066cc;
+    }
+    .post-meta {
+      font-size: 14px;
+      color: #6c757d;
+      margin-bottom: 8px;
+    }
+    .post-content {
+      font-size: 16px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .comments-section {
+      margin-top: 12px;
+      padding-left: 20px;
+    }
+    .comment-item {
+      margin-bottom: 8px;
+      padding: 8px;
+      border-left: 3px solid #0066cc;
+      font-size: 15px;
+      background-color: #e3f2fd;
+      border-radius: 0 4px 4px 0;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #0066cc;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .ai-system-item {
+      padding: 16px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      background-color: #ffffff;
+    }
+    .ai-system-item h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #0066cc;
+    }
+    .donation-method {
+      padding: 20px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      text-align: center;
+      background-color: #f8f9fa;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .donation-method:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .donation-method h3 {
+      margin-top: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: #0066cc;
+    }
+    .donation-qr {
+      width: 200px;
+      min-height: 200px;
+      height: auto;
+      margin: 16px auto;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      overflow: visible;
+    }
+    .donation-info {
+      font-size: 16px;
+      margin-top: 12px;
+      color: #6c757d;
+    }
+    .language-settings {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+    }
+    .language-settings select {
+      width: auto;
+      padding: 4px 8px;
+      font-size: 16px;
+    }
+    .custom-subreddit-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .custom-subreddit-form input {
+      flex: 1;
+    }
+    .custom-subreddit-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px;
+      background-color: #e3f2fd;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      flex: 1;
+      min-width: calc(50% - 5px);
+    }
+    .custom-subreddit-item button {
+      padding: 4px 8px;
+      font-size: 16px;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="tab-container">
+    <div class="tab active" data-tab="main">
+      <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+        <img src="icons/icon128.png" alt="灵感" style="width: 24px; height: 24px; margin-right: 8px;">
+        <span data-i18n="tabMain">主页面</span>
+      </div>
+    </div>
+    <div class="tab" data-tab="settings">
+      <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+        <img src="icons/icon128.png" alt="灵感" style="width: 24px; height: 24px; margin-right: 8px;">
+        <span data-i18n="tabSettings">设置</span>
+      </div>
+    </div>
+    <div class="tab" data-tab="donate">
+      <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+        <img src="icons/icon128.png" alt="灵感" style="width: 24px; height: 24px; margin-right: 8px;">
+        <span data-i18n="tabDonate">打赏</span>
+      </div>
+    </div>
+    <div class="tab" data-tab="instructions">
+      <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+        <img src="icons/icon128.png" alt="灵感" style="width: 24px; height: 24px; margin-right: 8px;">
+        <span data-i18n="tabInstructions">操作说明</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="tab-content" id="main-tab">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+      <div class="language-settings">
+        <label for="main-interfaceLanguage" style="font-size: 12px;" data-i18n="labelInterfaceLanguage">语言:</label>
+        <select id="main-interfaceLanguage">
+          <option value="zh">🇨🇳 中文</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="ru">🇷🇺 Русский</option>
+        </select>
+      </div>
+    </div>
+    
+    <h1 style="display: flex; align-items: center; justify-content: center;"><img src="icons/icon128.png" alt="灵感" style="width: 48px; height: 48px; vertical-align: middle; margin-right: 12px;"><span data-i18n="appName">灵感</span></h1>
+    
+    <div class="config-section">
+      <h2 data-i18n="sectionSelectSubreddits">选择板块</h2>
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <button id="selectAllSubreddits" class="secondary" style="padding: 6px 12px; font-size: 14px;" data-i18n="buttonSelectAll">全选</button>
+        <button id="deselectAllSubreddits" class="secondary" style="padding: 6px 12px; font-size: 14px;" data-i18n="buttonDeselectAll">取消全选</button>
+      </div>
+      <div class="subreddit-list" id="subredditList" style="display: flex; flex-wrap: wrap; gap: 10px;"></div>
+      
+      
+      
+      <h3 style="font-size: 14px; margin-top: 16px; margin-bottom: 8px;" data-i18n="addCustomSubreddit">添加自定义板块</h3>
+      <div class="custom-subreddit-form" style="display: flex; gap: 10px;">
+        <input type="text" id="customSubredditName" placeholder="板块名称 (例如: technology)" data-i18n-placeholder="placeholderSubredditName" style="flex: 1;">
+        <input type="text" id="customSubredditDesc" placeholder="板块描述" data-i18n-placeholder="placeholderSubredditDesc" style="flex: 1;">
+        <button id="addCustomSubreddit" data-i18n="buttonAdd">添加</button>
+      </div>
+      
+      <div id="customSubredditsList" style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+    </div>
+    
+    <div class="config-section">
+      <h2 data-i18n="sectionConfig">配置</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        <div class="form-group" style="flex: 1; min-width: 250px;">
+          <label for="maxPosts" data-i18n="labelMaxPosts">最大帖子数:</label>
+          <input type="number" id="maxPosts" min="1" value="1000">
+          <div style="font-size: 12px; color: #666; margin-top: 4px;" data-i18n="labelUnlimited">设置为-1表示无限制</div>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 250px;">
+          <label for="maxComments" data-i18n="labelMaxComments">最大评论数:</label>
+          <input type="number" id="maxComments" min="1" value="200">
+          <div style="font-size: 12px; color: #666; margin-top: 4px;" data-i18n="labelUnlimited">设置为-1表示无限制</div>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 250px;">
+          <label for="depth" data-i18n="labelDepth">评论深度:</label>
+          <input type="number" id="depth" min="1" value="10">
+          <div style="font-size: 12px; color: #666; margin-top: 4px;" data-i18n="labelUnlimited">设置为-1表示无限制</div>
+        </div>
+        <div class="form-group" style="flex: 1; min-width: 250px;">
+          <label for="minSubscribers" data-i18n="labelMinSubscribers">最小订阅者数:</label>
+          <input type="number" id="minSubscribers" min="0" value="5000">
+          <div style="font-size: 12px; color: #666; margin-top: 4px;" data-i18n="labelMinSubscribersHint">只爬取订阅者数大于等于此值的板块</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="config-section">
+      <h2 data-i18n="sectionAnalyzeContent">分析内容</h2>
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <button id="crawlSelected" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;" data-i18n="buttonCrawlSelected">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 5H7C5.89543 5 5 5.89543 5 7V17C5 18.1046 5.89543 19 7 19H17C18.1046 19 19 18.1046 19 17V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M9 9L15 9L15 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 12V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          分析选中板块
+        </button>
+        <button id="crawlAll" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;" data-i18n="buttonCrawlAll">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          分析所有板块
+        </button>
+      </div>
+      <button id="openResults" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" data-i18n="buttonViewResults">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 2H6C4.89543 2 4 2.89543 4 4V20C4 21.1046 4.89543 22 6 22H18C19.1046 22 20 21.1046 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        查看分析结果
+      </button>
+    </div>
+    
+    <div class="result-section" id="resultSection" style="display: none;">
+      <h2 data-i18n="sectionResults">分析结果</h2>
+      <div id="resultContent"></div>
+    </div>
+  </div>
+  
+  <div class="tab-content" id="settings-tab" style="display: none;">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+      <div class="language-settings">
+        <label for="settings-interfaceLanguage" style="font-size: 12px;" data-i18n="labelInterfaceLanguage">语言:</label>
+        <select id="settings-interfaceLanguage">
+          <option value="zh">🇨🇳 中文</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="ru">🇷🇺 Русский</option>
+        </select>
+      </div>
+    </div>
+    
+    <h1><img src="icons/icon128.png" alt="灵感" style="width: 32px; height: 32px; vertical-align: middle; margin-right: 8px;"><span data-i18n="sectionSettings">设置</span></h1>
+    
+    <div class="config-section collapsible-section" data-section="aiSystems">
+      <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 12px 0; border-bottom: 1px solid #dee2e6;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="collapse-icon" style="font-size: 12px; transition: transform 0.3s;">▼</span>
+          <h2 style="margin: 0;" data-i18n="sectionAiSystems">AI系统设置</h2>
+        </div>
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="aiApiEnabled" style="width: 18px; height: 18px;">
+          <span data-i18n="labelEnable">启用</span>
+        </label>
+      </div>
+      <div class="section-content" style="padding-top: 16px;">
+        <p style="font-size: 14px; color: #6c757d; margin-bottom: 16px;" data-i18n="aiApiDesc">启用后，分析功能将使用API接口进行内容分析。</p>
+        <div id="aiSystemsList"></div>
+        <button id="addAiSystem" data-i18n="buttonAddAiSystem">添加AI系统</button>
+      </div>
+    </div>
+    
+    <div class="config-section collapsible-section" data-section="aiWebPlatforms">
+      <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 12px 0; border-bottom: 1px solid #dee2e6;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="collapse-icon" style="font-size: 12px; transition: transform 0.3s;">▼</span>
+          <h2 style="margin: 0;" data-i18n="sectionAiWebPlatforms">AI网页版设置</h2>
+        </div>
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="aiWebEnabled" style="width: 18px; height: 18px;">
+          <span data-i18n="labelEnable">启用</span>
+        </label>
+      </div>
+      <div class="section-content" style="padding-top: 16px;">
+        <p style="font-size: 14px; color: #6c757d; margin-bottom: 16px;" data-i18n="aiWebPlatformsDesc">启用后，分析功能将在新标签页打开AI网页版，自动输入内容并提取结果。支持配置多个平台并行处理。</p>
+        
+        <div id="aiWebPlatformsList"></div>
+        <button id="addAiWebPlatform" data-i18n="buttonAddAiWebPlatform">添加AI网页版平台</button>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="tab-content" id="donate-tab" style="display: none;">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+      <div class="language-settings">
+        <label for="donate-interfaceLanguage" style="font-size: 12px;" data-i18n="labelInterfaceLanguage">语言:</label>
+        <select id="donate-interfaceLanguage">
+          <option value="zh">🇨🇳 中文</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="ru">🇷🇺 Русский</option>
+        </select>
+      </div>
+    </div>
+    
+    <h1><img src="icons/icon128.png" alt="灵感" style="width: 32px; height: 32px; vertical-align: middle; margin-right: 8px;"><span data-i18n="sectionDonate">打赏支持</span></h1>
+    
+    <p data-i18n="donateMessage">如果您喜欢这个插件，欢迎通过以下方式打赏支持开发：</p>
+    
+    <div class="donation-method">
+      <h3 data-i18n="wechatPay">微信支付</h3>
+      <div style="cursor: pointer; margin: 16px auto; text-align: center;" id="wechatQrContainer">
+        <img src="icons/17110426_33_68.jpg" alt="微信收款码" style="width: auto; height: auto; max-width: 100%; max-height: 300px;" id="wechatQrImg">
+      </div>
+      <div class="donation-info" data-i18n="clickToEnlarge">点击二维码放大</div>
+    </div>
+    
+    <div class="donation-method">
+      <h3 data-i18n="alipay">支付宝</h3>
+      <div style="cursor: pointer; margin: 16px auto; text-align: center;" id="alipayQrContainer">
+        <img src="icons/0425_32_68.jpg" alt="支付宝收款码" style="width: auto; height: auto; max-width: 100%; max-height: 300px;" id="alipayQrImg">
+      </div>
+      <div class="donation-info" data-i18n="clickToEnlarge">点击二维码放大</div>
+    </div>
+    
+    <div class="config-section" style="text-align: center; padding: 20px;">
+      <h3 style="margin-top: 0; color: #0066cc; margin-bottom: 12px;" data-i18n="contactAuthor">联系作者</h3>
+      <p style="margin-bottom: 12px;" data-i18n="contactMessage">如有任何问题或建议，欢迎通过邮件联系作者：</p>
+      <a href="mailto:ngujdi@qq.com" style="color: #0066cc; text-decoration: none; font-weight: 500;">ngujdi@qq.com</a>
+    </div>
+    
+    <div class="config-section" style="padding: 20px; text-align: center;">
+      <h3 style="margin-top: 0; color: #0066cc; margin-bottom: 12px; text-align: center;" data-i18n="pluginDescriptionTitle">插件介绍</h3>
+      <p id="pluginDescription" style="line-height: 1.6; color: #333; text-align: left;"></p>
+    </div>
+    
+
+  </div>
+  
+  <div class="tab-content" id="instructions-tab" style="display: none;">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+      <div class="language-settings">
+        <label for="instructions-interfaceLanguage" style="font-size: 12px;" data-i18n="labelInterfaceLanguage">语言:</label>
+        <select id="instructions-interfaceLanguage">
+          <option value="zh">🇨🇳 中文</option>
+          <option value="en">🇺🇸 English</option>
+          <option value="ja">🇯🇵 日本語</option>
+          <option value="ko">🇰🇷 한국어</option>
+          <option value="fr">🇫🇷 Français</option>
+          <option value="de">🇩🇪 Deutsch</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="ru">🇷🇺 Русский</option>
+        </select>
+      </div>
+    </div>
+    
+    <h1><img src="icons/icon128.png" alt="灵感" style="width: 32px; height: 32px; vertical-align: middle; margin-right: 8px;"><span data-i18n="tabInstructions">操作说明</span></h1>
+    
+    <div class="config-section">
+      <h2 data-i18n="instructionsSection1">基本操作</h2>
+      <div style="line-height: 1.6; color: #333;">
+        <p data-i18n="instructionsStep1">1. 选择板块：在主页面选择您感兴趣的Reddit板块，或添加自定义板块。</p>
+        <p data-i18n="instructionsStep2">2. 配置设置：在设置页面配置AI系统、语言偏好和其他参数。</p>
+        <p data-i18n="instructionsStep3">3. 开始分析：点击"全量更新"按钮开始分析所选板块的内容。</p>
+        <p data-i18n="instructionsStep4">4. 查看结果：分析完成后，点击"查看分析结果"按钮查看详细分析结果。</p>
+      </div>
+    </div>
+    
+    <div class="config-section">
+      <h2 data-i18n="instructionsSection2">功能说明</h2>
+      <div style="line-height: 1.6; color: #333;">
+        <p data-i18n="instructionsFeature1">- AI智能分析：使用AI模型深度分析帖子内容，提供质量评分、总结、价值分析等。</p>
+        <p data-i18n="instructionsFeature2">- 多语言支持：支持多种语言界面和内容翻译，满足国际化需求。</p>
+        <p data-i18n="instructionsFeature3">- 自定义配置：可根据需要配置最大帖子数、评论数、深度等参数。</p>
+        <p data-i18n="instructionsFeature4">- 智能过滤：可根据订阅者数量过滤板块，确保分析高质量内容。</p>
+      </div>
+    </div>
+    
+    <div class="config-section">
+      <h2 data-i18n="instructionsSection3">常见问题</h2>
+      <div style="line-height: 1.6; color: #333;">
+        <p data-i18n="instructionsFAQ1">Q: 为什么需要登录Reddit？</p>
+        <p data-i18n="instructionsFAQ1Answer">A: 某些板块需要登录才能访问，登录后可以获取更多内容。</p>
+        <p data-i18n="instructionsFAQ2">Q: AI分析需要多长时间？</p>
+        <p data-i18n="instructionsFAQ2Answer">A: 分析时间取决于内容量和AI模型性能，通常需要几分钟到十几分钟。</p>
+        <p data-i18n="instructionsFAQ3">Q: 如何添加自定义板块？</p>
+        <p data-i18n="instructionsFAQ3Answer">A: 在主页面的"添加自定义板块"部分输入板块名称和描述，然后点击"添加"按钮。</p>
+      </div>
+    </div>
+    
+    <div class="config-section">
+      <h2 data-i18n="instructionsSection4">联系与支持</h2>
+      <div style="line-height: 1.6; color: #333;">
+        <p data-i18n="instructionsContact">如有任何问题或建议，欢迎联系作者。</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 二维码放大模态框 -->
+  <div id="qrModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center;">
+    <div id="qrModalContent" style="position: relative; display: inline-block; max-width: 90%; max-height: 90%; text-align: center;">
+      <img id="modalQrImg" src="" alt="放大二维码" style="max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); cursor: default; transition: transform 0.3s ease; position: relative; display: inline-block;">
+      <div id="zoomControls" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; background-color: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 8px;">
+        <button id="zoomOut" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">-</button>
+        <button id="zoomReset" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">重置</button>
+        <button id="zoomIn" style="padding: 8px 16px; background: #0066cc; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">+</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="src/modules/config.js"></script>
+  <script src="src/modules/i18n.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

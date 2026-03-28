@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>操作说明 - RedditPlus</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            min-height: 100vh;
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #343a40;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        .step {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007bff;
+        }
+        .feature {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+        .faq {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+        }
+        .faq-answer {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        .contact {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 4px solid #dc3545;
+        }
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #343a40;
+            color: white;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .nav-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+        .main-content {
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <div class="nav-container">
+            <div class="nav-title" id="appName">灵感</div>
+            <div class="nav-links">
+                <a href="popup.html" class="nav-link" id="navMain">主页面</a>
+                <a href="instructions.html" class="nav-link" id="navInstructions">操作说明</a>
+                <a href="popup.html?tab=settings" class="nav-link" id="navSettings">设置</a>
+                <a href="popup.html?tab=donate" class="nav-link" id="navDonate">打赏</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <h1 id="instructionsTitle">操作说明</h1>
+            
+            <p id="instructionsOverview">RedditPlus 是一款智能内容分析插件，帮助您发现有价值的内容、获取创新思路、激发商业灵感。</p>
+            
+            <h2 id="instructionsSection1">基本操作</h2>
+            <div class="step" id="instructionsStep1">1. 选择板块：在主页面选择您感兴趣的Reddit板块，或添加自定义板块。</div>
+            <div class="step" id="instructionsStep2">2. 配置设置：在设置页面配置AI系统、语言偏好和其他参数。</div>
+            <div class="step" id="instructionsStep3">3. 开始分析：点击"全量更新"按钮开始分析所选板块的内容。</div>
+            <div class="step" id="instructionsStep4">4. 查看结果：分析完成后，点击"查看分析结果"按钮查看详细分析结果。</div>
+            
+            <h2 id="instructionsSection2">功能说明</h2>
+            <div class="feature" id="instructionsFeature1">AI智能分析：使用AI模型深度分析帖子内容，提供质量评分、总结、价值分析等。</div>
+            <div class="feature" id="instructionsFeature2">多语言支持：支持多种语言界面和内容翻译，满足国际化需求。</div>
+            <div class="feature" id="instructionsFeature3">自定义配置：可根据需要配置最大帖子数、评论数、深度等参数。</div>
+            <div class="feature" id="instructionsFeature4">智能过滤：可根据订阅者数量过滤板块，确保分析高质量内容。</div>
+            
+            <h2 id="instructionsSection3">常见问题</h2>
+            <div class="faq">
+                <div id="instructionsFAQ1">Q: 为什么需要登录Reddit？</div>
+                <div class="faq-answer" id="instructionsFAQ1Answer">A: 某些板块需要登录才能访问，登录后可以获取更多内容。</div>
+            </div>
+            <div class="faq">
+                <div id="instructionsFAQ2">Q: AI分析需要多长时间？</div>
+                <div class="faq-answer" id="instructionsFAQ2Answer">A: 分析时间取决于内容量和AI模型性能，通常需要几分钟到十几分钟。</div>
+            </div>
+            <div class="faq">
+                <div id="instructionsFAQ3">Q: 如何添加自定义板块？</div>
+                <div class="faq-answer" id="instructionsFAQ3Answer">A: 在主页面的"添加自定义板块"部分输入板块名称和描述，然后点击"添加"按钮。</div>
+            </div>
+            
+            <div class="contact" id="instructionsContact">
+                <h2 id="instructionsSection4">联系与支持</h2>
+                <p>如有任何问题或建议，欢迎联系作者。</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/modules/i18n.js"></script>
+    <script src="instructions.js"></script>
+</body>
+</html>
