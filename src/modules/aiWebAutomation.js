@@ -38,10 +38,21 @@ async function startAiWebAutomation(platform, content, options = {}) {
     const tab = await chrome.tabs.create({ url, active: true });
     aiWebAutomation.currentTabId = tab.id;
 
+    // 监听标签页关闭
+    const tabRemovedListener = (removedTabId) => {
+      if (removedTabId === tab.id && aiWebAutomation.isRunning) {
+        chrome.tabs.onRemoved.removeListener(tabRemovedListener);
+        chrome.tabs.onUpdated.removeListener(tabUpdateListener);
+        aiWebAutomation.isRunning = false;
+        handleAiWebAutomationComplete({ success: false, error: 'Tab was closed by user' });
+      }
+    };
+
     // 监听标签页加载完成
     const tabUpdateListener = async (tabId, changeInfo) => {
       if (tabId === tab.id && changeInfo.status === 'complete') {
         chrome.tabs.onUpdated.removeListener(tabUpdateListener);
+        chrome.tabs.onRemoved.removeListener(tabRemovedListener);
         
         try {
           // 等待页面完全加载
@@ -73,6 +84,7 @@ async function startAiWebAutomation(platform, content, options = {}) {
       }
     };
     
+    chrome.tabs.onRemoved.addListener(tabRemovedListener);
     chrome.tabs.onUpdated.addListener(tabUpdateListener);
 
     return new Promise((resolve, reject) => {
@@ -81,6 +93,7 @@ async function startAiWebAutomation(platform, content, options = {}) {
       setTimeout(() => {
         if (aiWebAutomation.isRunning) {
           chrome.tabs.onUpdated.removeListener(tabUpdateListener);
+          chrome.tabs.onRemoved.removeListener(tabRemovedListener);
           // 关闭标签页
           if (aiWebAutomation.currentTabId) {
             chrome.tabs.remove(aiWebAutomation.currentTabId).catch(() => {});
@@ -130,10 +143,12 @@ async function injectAndExecuteAiWebAutomation(tabId, content, options) {
         args: [content, customSelectors, platformConfig.waitForResponse]
       });
     } catch (scriptError) {
-      if (scriptError.message && scriptError.message.includes('Frame with ID')) {
-        throw new Error('Tab was closed during script execution');
+      if (scriptError.message && (scriptError.message.includes('Frame with ID') || 
+                                   scriptError.message.includes('Tab') ||
+                                   scriptError.message.includes('No tab'))) {
+        return { success: false, error: 'Tab was closed during script execution' };
       }
-      throw scriptError;
+      return { success: false, error: scriptError.message };
     }
 
     // 检查结果是否存在
@@ -562,9 +577,12 @@ function handleAiWebAutomationComplete(result) {
     console.error('Error in response callback:', callbackError);
   }
   
-  // 关闭标签页
+  // 关闭标签页（如果仍然存在）
   if (aiWebAutomation.currentTabId) {
-    chrome.tabs.remove(aiWebAutomation.currentTabId).catch(() => {});
+    chrome.tabs.get(aiWebAutomation.currentTabId).then(() => {
+      chrome.tabs.remove(aiWebAutomation.currentTabId).catch(() => {});
+    }).catch(() => {
+    });
   }
   
   aiWebAutomation.isRunning = false;
