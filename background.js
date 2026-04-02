@@ -12,6 +12,7 @@ importScripts('src/modules/storage.js');
 importScripts('src/modules/cache.js');
 importScripts('src/modules/utils.js');
 importScripts('src/modules/i18n.js');
+importScripts('src/modules/translator.js');
 importScripts('src/modules/redditCrawler.js');
 importScripts('src/modules/aiAnalyzer.js');
 importScripts('src/modules/browserAutomation.js');

@@ -528,6 +528,26 @@ async function loadSettings() {
   // 更新界面语言
   updateInterfaceLanguage();
   
+  // 加载目标语言设置
+  const targetLanguageElement = document.getElementById('targetLanguage');
+  if (targetLanguageElement) {
+    targetLanguageElement.value = settings.targetLanguage || currentInterfaceLanguage;
+    targetLanguageElement.addEventListener('change', async () => {
+      settings.targetLanguage = targetLanguageElement.value;
+      await chrome.runtime.sendMessage({ action: 'updateSettings', settings });
+    });
+  }
+  
+  // 加载自动翻译设置
+  const autoTranslateCheckbox = document.getElementById('autoTranslate');
+  if (autoTranslateCheckbox) {
+    autoTranslateCheckbox.checked = settings.autoTranslate || false;
+    autoTranslateCheckbox.addEventListener('change', async () => {
+      settings.autoTranslate = autoTranslateCheckbox.checked;
+      await chrome.runtime.sendMessage({ action: 'updateSettings', settings });
+    });
+  }
+  
   // 初始化折叠功能
   initCollapsibleSections(settings);
   

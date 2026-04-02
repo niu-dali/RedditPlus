@@ -18,7 +18,6 @@ async function loadSettings() {
       updateTranslations();
     });
   } catch (error) {
-    console.error('Error loading settings:', error);
     // 出错时使用浏览器语言检测
     const browserLang = navigator.language || navigator.userLanguage || 'en';
     const langCode = browserLang.split('-')[0].toLowerCase();
@@ -27,6 +26,7 @@ async function loadSettings() {
     updateTranslations();
   }
 }
+
 
 // 更新翻译
 function updateTranslations() {
@@ -69,7 +69,159 @@ window.addEventListener('load', async () => {
   
   // 加载已有的爬取结果
   await loadExistingResults();
+  
+  // 确保翻译按钮显示
+  ensureTranslateButton();
 });
+
+// 确保翻译按钮显示
+function ensureTranslateButton() {
+  try {
+    // 检查是否已经有翻译图标和切换图标
+    const existingTranslateIcon = document.getElementById('translateIcon');
+    const existingToggleIcon = document.getElementById('toggleOriginalIcon');
+    
+    if (!existingTranslateIcon || !existingToggleIcon) {
+      // 获取标题元素
+      const titleElement = document.querySelector('h1');
+      if (titleElement) {
+        // 设置标题元素为相对定位
+        titleElement.style.position = 'relative';
+        
+        // 创建切换原文/翻译图标
+        if (!existingToggleIcon) {
+          const toggleIcon = document.createElement('div');
+          toggleIcon.id = 'toggleOriginalIcon';
+          toggleIcon.style.cssText = `
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            right: 140px;
+            top: 50%;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 0 3px rgba(0, 102, 204, 0.8));
+          `;
+          toggleIcon.innerHTML = `
+            <span style="font-size: 24px; line-height: 1;">🔄</span>
+          `;
+          
+          // 添加鼠标悬停提示
+          toggleIcon.title = t('showOriginal') || '显示原文';
+          
+          // 添加点击事件
+          toggleIcon.onclick = toggleOriginalView;
+          
+          // 添加悬停效果
+          toggleIcon.style.transition = 'all 0.3s ease';
+          toggleIcon.onmouseover = () => {
+            toggleIcon.style.transform = 'translateY(-50%) scale(1.1)';
+          };
+          toggleIcon.onmouseout = () => {
+            toggleIcon.style.transform = 'translateY(-50%) scale(1)';
+          };
+          
+          // 添加到标题元素中
+          titleElement.appendChild(toggleIcon);
+        }
+        
+        // 创建翻译图标
+        if (!existingTranslateIcon) {
+          const translateIcon = document.createElement('div');
+          translateIcon.id = 'translateIcon';
+          translateIcon.style.cssText = `
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            right: 100px;
+            top: 50%;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 0 3px rgba(0, 102, 204, 0.8));
+          `;
+          translateIcon.innerHTML = `
+            <span style="font-size: 32px; line-height: 1;">🌐</span>
+          `;
+          
+          // 添加鼠标悬停提示
+          translateIcon.title = t('translateAll') || '翻译所有';
+          
+          // 添加点击事件
+          translateIcon.onclick = () => {
+            translateAllPosts();
+          };
+          
+          // 添加悬停效果
+          translateIcon.style.transition = 'all 0.3s ease';
+          translateIcon.onmouseover = () => {
+            translateIcon.style.transform = 'translateY(-50%) scale(1.1)';
+          };
+          translateIcon.onmouseout = () => {
+            translateIcon.style.transform = 'translateY(-50%) scale(1)';
+          };
+          
+          // 添加到标题元素中
+          titleElement.appendChild(translateIcon);
+        }
+      }
+    }
+  } catch (error) {
+  }
+}
+
+// 全局变量：是否显示原文
+let showOriginalGlobal = false;
+
+// 切换原文/翻译视图
+function toggleOriginalView() {
+  try {
+    // 切换状态
+    showOriginalGlobal = !showOriginalGlobal;
+    
+    // 更新切换图标的标题
+    const toggleIcon = document.getElementById('toggleOriginalIcon');
+    if (toggleIcon) {
+      toggleIcon.title = showOriginalGlobal ? (t('showTranslation') || '显示翻译') : (t('showOriginal') || '显示原文');
+    }
+    
+    // 遍历所有帖子项
+    const postItems = document.querySelectorAll('.post-item');
+    postItems.forEach(postItem => {
+      // 更新帖子的显示状态
+      postItem.dataset.showOriginal = showOriginalGlobal.toString();
+      
+      // 切换标题
+      const titleText = postItem.querySelector('.post-title-text');
+      const post = getPostById(postItem.dataset.postId);
+      if (titleText && post) {
+        const originalTitle = post.title;
+        const translatedTitle = post.analysis?.titleTranslation || post.translation || post.title;
+        titleText.textContent = showOriginalGlobal ? originalTitle : translatedTitle;
+      }
+      
+      // 切换正文
+      const postContent = postItem.querySelector('.post-content');
+      if (postContent) {
+        const originalContent = postContent.querySelector('.original-content');
+        const translatedContent = postContent.querySelector('.translated-content');
+        if (originalContent && translatedContent) {
+          originalContent.style.display = showOriginalGlobal ? 'block' : 'none';
+          translatedContent.style.display = showOriginalGlobal ? 'none' : 'block';
+        }
+      }
+      
+      // 切换评论
+      const postComments = postItem.querySelector('.post-comments');
+      if (postComments) {
+        const originalContent = postComments.querySelector('.original-content');
+        const translatedContent = postComments.querySelector('.translated-content');
+        if (originalContent && translatedContent) {
+          originalContent.style.display = showOriginalGlobal ? 'block' : 'none';
+          translatedContent.style.display = showOriginalGlobal ? 'none' : 'block';
+        }
+      }
+    });
+  } catch (error) {
+  }
+}
 
 // 检查爬取状态
 async function checkCrawlState() {
@@ -92,7 +244,6 @@ async function checkCrawlState() {
       }
     }
   } catch (error) {
-    console.error('Error checking crawl state:', error);
   }
 }
 
@@ -145,9 +296,11 @@ async function loadExistingResults() {
           }
         }
       }
+      
+      // 确保翻译图标显示
+      ensureTranslateButton();
     }
   } catch (error) {
-    console.error('Error loading existing results:', error);
   }
 }
 
@@ -294,14 +447,13 @@ function translateAndDisplayPost(subreddit, post, subredditSection) {
       }
     });
   } catch (error) {
-    console.error('Error translating post:', error);
-    // 翻译失败，使用原始内容
+  }  // 翻译失败，使用原始内容
     post.translation = post.title;
     post.selftextTranslation = post.selftext;
     post.commentsTranslation = '';
     displayPost(post, subredditSection);
   }
-}
+
 
 // 保存帖子的翻译结果
 function savePostTranslation(subreddit, post) {
@@ -314,7 +466,6 @@ function savePostTranslation(subreddit, post) {
       // 无需处理响应
     });
   } catch (error) {
-    console.error('Error saving post translation:', error);
   }
 }
 
@@ -449,6 +600,481 @@ function deletePost(postId, permalink, subreddit) {
   );
 }
 
+// 翻译帖子
+async function translatePost(postId, subreddit) {
+  try {
+    // 获取帖子数据
+    const response = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({ action: 'getPost', postId, subreddit }, resolve);
+    });
+    
+    if (!response) {
+      return;
+    }
+    
+    if (response.error) {
+      return;
+    }
+    
+    if (!response.post) {
+      return;
+    }
+    
+    const post = response.post;
+    
+    // 显示翻译选项对话框
+    showTranslationOptionsDialog(post, subreddit);
+  } catch (error) {
+  }
+}
+
+// 显示翻译选项对话框
+function showTranslationOptionsDialog(post, subreddit) {
+  // 创建对话框容器
+  const dialogContainer = document.createElement('div');
+  dialogContainer.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  `;
+  
+  // 创建对话框内容
+  const dialogContent = document.createElement('div');
+  dialogContent.style.cssText = `
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    min-width: 400px;
+    max-width: 600px;
+  `;
+  
+  // 添加标题
+  const titleElement = document.createElement('h3');
+  titleElement.textContent = t('translate') || '翻译';
+  titleElement.style.marginBottom = '20px';
+  dialogContent.appendChild(titleElement);
+  
+  // 添加翻译平台选择
+  const platformSelector = document.createElement('div');
+  platformSelector.style.cssText = `
+    margin-bottom: 20px;
+  `;
+  platformSelector.innerHTML = `
+    <label style="display: block; margin-bottom: 8px; font-weight: bold;">${t('translationPlatform') || '翻译平台:'}</label>
+    <select id="translationPlatform" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+      <option value="google">Google 翻译</option>
+      <option value="baidu">百度翻译</option>
+      <option value="ai">AI 翻译</option>
+    </select>
+  `;
+  dialogContent.appendChild(platformSelector);
+  
+  // 添加目标语言选择
+  const languageSelector = document.createElement('div');
+  languageSelector.style.cssText = `
+    margin-bottom: 20px;
+  `;
+  languageSelector.innerHTML = `
+    <label style="display: block; margin-bottom: 8px; font-weight: bold;">${t('targetLanguage') || '目标语言:'}</label>
+    <select id="targetLanguage" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+      <option value="zh">中文</option>
+      <option value="en">English</option>
+      <option value="ja">日本語</option>
+      <option value="ko">한국어</option>
+      <option value="fr">Français</option>
+      <option value="de">Deutsch</option>
+      <option value="es">Español</option>
+      <option value="ru">Русский</option>
+    </select>
+  `;
+  dialogContent.appendChild(languageSelector);
+  
+  // 创建按钮容器
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.cssText = `
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  `;
+  
+  // 创建取消按钮
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = t('cancel') || '取消';
+  cancelButton.style.cssText = `
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    cursor: pointer;
+  `;
+  cancelButton.addEventListener('click', () => {
+    dialogContainer.remove();
+  });
+  buttonContainer.appendChild(cancelButton);
+  
+  // 创建翻译按钮
+  const translateButton = document.createElement('button');
+  translateButton.textContent = t('translate') || '翻译';
+  translateButton.style.cssText = `
+    padding: 8px 16px;
+    border: 1px solid #0066cc;
+    background-color: #0066cc;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  `;
+  translateButton.addEventListener('click', async () => {
+    const platform = document.getElementById('translationPlatform').value;
+    const targetLanguage = document.getElementById('targetLanguage').value;
+    
+    // 关闭对话框
+    dialogContainer.remove();
+    
+    // 执行翻译
+    await performTranslation(post, subreddit, platform, targetLanguage);
+  });
+  buttonContainer.appendChild(translateButton);
+  
+  dialogContent.appendChild(buttonContainer);
+  dialogContainer.appendChild(dialogContent);
+  
+  // 添加到页面
+  document.body.appendChild(dialogContainer);
+  
+  // 添加点击外部关闭功能
+  dialogContainer.addEventListener('click', (e) => {
+    if (e.target === dialogContainer) {
+      dialogContainer.remove();
+    }
+  });
+}
+
+// 执行翻译
+async function performTranslation(post, subreddit, platform, targetLanguage) {
+  try {
+    // 显示翻译中状态
+    const postElement = document.querySelector(`.post-item[data-post-id="${post.id}"]`);
+    if (postElement) {
+      const header = postElement.querySelector('.post-header');
+      if (header) {
+        const statusElement = document.createElement('div');
+        statusElement.className = 'translation-status';
+        statusElement.style.cssText = `
+          position: absolute;
+          top: 100%;
+          right: 0;
+          background-color: #0066cc;
+          color: white;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          z-index: 10;
+        `;
+        statusElement.textContent = t('translating') || '翻译中...';
+        header.appendChild(statusElement);
+      }
+    }
+    
+    // 准备翻译文本（包括标题、正文和评论）
+    let textToTranslate = post.title;
+    if (post.selftext) {
+      textToTranslate += '\n' + post.selftext;
+    }
+    if (post.comments && post.comments.length > 0) {
+      textToTranslate += '\n\nComments:\n';
+      post.comments.forEach((comment, index) => {
+        textToTranslate += `${index + 1}. ${comment.author}: ${comment.body}\n`;
+      });
+    }
+    
+    // 发送翻译请求
+    const response = await new Promise((resolve) => {
+      chrome.runtime.sendMessage({
+        action: 'translate',
+        text: textToTranslate,
+        targetLanguage: targetLanguage,
+        platform: platform
+      }, resolve);
+    });
+    
+    // 移除翻译状态
+    if (postElement) {
+      const statusElement = postElement.querySelector('.translation-status');
+      if (statusElement) {
+        statusElement.remove();
+      }
+    }
+    
+    if (response && response.translation) {
+      // 更新帖子的翻译结果
+      const translation = response.translation;
+      
+      // 解析翻译结果
+      const parts = translation.split('\n\n');
+      
+      // 标题和正文翻译
+      if (parts.length > 0) {
+        const titleAndBody = parts[0].split('\n');
+        post.translation = titleAndBody[0] || post.title;
+        if (titleAndBody.length > 1) {
+          post.selftextTranslation = titleAndBody.slice(1).join('\n') || post.selftext;
+        }
+      }
+      
+      // 评论翻译
+      if (parts.length > 1 && parts[1].includes('Comments:')) {
+        post.analysis = post.analysis || {};
+        post.analysis.commentsTranslation = parts[1].replace('Comments:', '').trim();
+      }
+      
+      // 保存更新后的帖子
+      await new Promise((resolve) => {
+        chrome.runtime.sendMessage({
+          action: 'savePostTranslation',
+          subreddit: subreddit,
+          post: post
+        }, resolve);
+      });
+      
+      // 更新帖子显示
+      const subredditSection = document.getElementById(`subreddit-${subreddit}`);
+      if (subredditSection) {
+        // 移除旧的帖子元素
+        const oldPostElement = document.querySelector(`.post-item[data-post-id="${post.id}"]`);
+        if (oldPostElement) {
+          oldPostElement.remove();
+        }
+        
+        // 重新显示帖子
+        displayPost(post, subredditSection);
+      }
+    } else {
+    }
+  } catch (error) {
+    
+    // 移除翻译状态
+    const postElement = document.querySelector(`.post-item[data-post-id="${post.id}"]`);
+    if (postElement) {
+      const statusElement = postElement.querySelector('.translation-status');
+      if (statusElement) {
+        statusElement.remove();
+      }
+    }
+  }
+}
+
+// 翻译所有帖子
+async function translateAllPosts() {
+  try {
+    // 显示翻译选项对话框
+    const options = await new Promise((resolve) => {
+      // 创建对话框容器
+      const dialogContainer = document.createElement('div');
+      dialogContainer.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      `;
+      
+      // 创建对话框内容
+      const dialogContent = document.createElement('div');
+      dialogContent.style.cssText = `
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        min-width: 400px;
+        max-width: 600px;
+      `;
+      
+      // 添加标题
+      const titleElement = document.createElement('h3');
+      titleElement.textContent = t('translate') || '翻译';
+      titleElement.style.marginBottom = '20px';
+      dialogContent.appendChild(titleElement);
+      
+      // 添加翻译平台选择
+      const platformSelector = document.createElement('div');
+      platformSelector.style.cssText = `
+        margin-bottom: 20px;
+      `;
+      platformSelector.innerHTML = `
+        <label style="display: block; margin-bottom: 8px; font-weight: bold;">${t('translationPlatform') || '翻译平台:'}</label>
+        <select id="translationPlatform" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <option value="google">Google 翻译</option>
+          <option value="baidu">百度翻译</option>
+          <option value="ai">AI 翻译</option>
+        </select>
+      `;
+      dialogContent.appendChild(platformSelector);
+      
+      // 添加目标语言选择
+      const languageSelector = document.createElement('div');
+      languageSelector.style.cssText = `
+        margin-bottom: 20px;
+      `;
+      languageSelector.innerHTML = `
+        <label style="display: block; margin-bottom: 8px; font-weight: bold;">${t('targetLanguage') || '目标语言:'}</label>
+        <select id="targetLanguage" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <option value="zh">中文</option>
+          <option value="en">English</option>
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+          <option value="fr">Français</option>
+          <option value="de">Deutsch</option>
+          <option value="es">Español</option>
+          <option value="ru">Русский</option>
+        </select>
+      `;
+      dialogContent.appendChild(languageSelector);
+      
+      // 创建按钮容器
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.cssText = `
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      `;
+      
+      // 创建取消按钮
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = t('cancel') || '取消';
+      cancelButton.style.cssText = `
+        padding: 8px 16px;
+        border: 1px solid #ccc;
+        background-color: #f5f5f5;
+        border-radius: 4px;
+        cursor: pointer;
+      `;
+      cancelButton.addEventListener('click', () => {
+        dialogContainer.remove();
+        resolve(null);
+      });
+      buttonContainer.appendChild(cancelButton);
+      
+      // 创建翻译按钮
+      const translateButton = document.createElement('button');
+      translateButton.textContent = t('translate') || '翻译';
+      translateButton.style.cssText = `
+        padding: 8px 16px;
+        border: 1px solid #0066cc;
+        background-color: #0066cc;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+      `;
+      translateButton.addEventListener('click', () => {
+        const platform = document.getElementById('translationPlatform').value;
+        const targetLanguage = document.getElementById('targetLanguage').value;
+        
+        // 关闭对话框
+        dialogContainer.remove();
+        
+        resolve({ platform, targetLanguage });
+      });
+      buttonContainer.appendChild(translateButton);
+      
+      dialogContent.appendChild(buttonContainer);
+      dialogContainer.appendChild(dialogContent);
+      
+      // 添加到页面
+      document.body.appendChild(dialogContainer);
+      
+      // 添加点击外部关闭功能
+      dialogContainer.addEventListener('click', (e) => {
+        if (e.target === dialogContainer) {
+          dialogContainer.remove();
+          resolve(null);
+        }
+      });
+    });
+    
+    if (!options) {
+      return; // 用户取消了翻译
+    }
+    
+    const { platform, targetLanguage } = options;
+    
+    // 显示全局翻译状态
+    const statusContainer = document.createElement('div');
+    statusContainer.className = 'global-translation-status';
+    statusContainer.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #0066cc;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 10000;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    `;
+    statusContainer.textContent = '正在翻译所有帖子...';
+    document.body.appendChild(statusContainer);
+    
+    // 获取所有帖子
+    const subredditSections = document.querySelectorAll('.subreddit-section');
+    let totalPosts = 0;
+    let translatedPosts = 0;
+    
+    // 计算总帖子数
+    subredditSections.forEach(section => {
+      const posts = section.querySelectorAll('.post-item');
+      totalPosts += posts.length;
+    });
+    
+    // 遍历所有板块的帖子并翻译
+    for (const section of subredditSections) {
+      const subreddit = section.dataset.subreddit;
+      const postElements = section.querySelectorAll('.post-item');
+      
+      for (const postElement of postElements) {
+        const postId = postElement.dataset.postId;
+        
+        // 获取帖子数据
+        const response = await new Promise((resolve) => {
+          chrome.runtime.sendMessage({ action: 'getPost', postId, subreddit }, resolve);
+        });
+        
+        if (response && response.post) {
+          const post = response.post;
+          await performTranslation(post, subreddit, platform, targetLanguage);
+          translatedPosts++;
+          
+          // 更新状态
+          statusContainer.textContent = `正在翻译所有帖子... ${translatedPosts}/${totalPosts}`;
+        }
+      }
+    }
+    
+    // 移除全局翻译状态
+    statusContainer.textContent = `翻译完成！共翻译了 ${translatedPosts} 个帖子。`;
+    setTimeout(() => {
+      statusContainer.remove();
+    }, 2000);
+    
+  } catch (error) {
+  }
+}
+
+
 // 显示帖子
 function displayPost(post, subredditSection) {
   // 获取当前板块的帖子数量作为序号
@@ -459,52 +1085,79 @@ function displayPost(post, subredditSection) {
   const postItem = document.createElement('div');
   postItem.className = 'post-item';
   postItem.dataset.postId = post.id;
+  postItem.dataset.showOriginal = 'false'; // 默认显示翻译内容
   
-  // 使用翻译后的标题，如果没有翻译则使用原始标题
-  let title = post.analysis?.titleTranslation || post.translation || post.title;
+  // 标题和正文
+  const originalTitle = post.title;
+  const originalSelftext = post.selftext;
+  const translatedTitle = post.analysis?.titleTranslation || post.translation || post.title;
+  const translatedSelftext = post.analysis?.bodyTranslation || post.selftextTranslation || post.selftext;
+  
+  // 构建帖子内容
   let content = `<div class="post-header">
-    <div class="post-title"><span class="post-number" style="font-weight: bold; color: #666; margin-right: 8px;">#${postNumber}</span><a href="${post.permalink}" target="_blank" style="color: #0066cc; text-decoration: none;">${title}</a></div>
+    <div class="post-title">
+      <span class="post-number" style="font-weight: bold; color: #666; margin-right: 8px;">#${postNumber}</span>
+      <a href="${post.permalink}" target="_blank" style="color: #0066cc; text-decoration: none;" class="post-title-text">${translatedTitle}</a>
+    </div>
     <button class="delete-post-btn" data-post-id="${post.id}" data-permalink="${post.permalink}" data-subreddit="${subredditSection.dataset.subreddit}" title="${t('delete')}">✕</button>
   </div>`;
   content += `<div class="post-meta">${t('author')}: ${post.author} | ${t('score')}: ${post.score} | ${t('comments')}: ${post.num_comments} | <a href="${post.permalink}" target="_blank" style="color: #0066cc; text-decoration: none;">${t('originalLink')}</a></div>`;
   
-  // 使用翻译后的正文，如果没有翻译则使用原始内容
+  // 正文
   if (post.selftext) {
-    const selftext = post.analysis?.bodyTranslation || post.selftextTranslation || post.selftext;
-    content += `<div class="post-content">${selftext}</div>`;
+    content += `<div class="post-content">
+      <div class="translated-content" style="display: block;">${translatedSelftext}</div>
+      <div class="original-content" style="display: none;">${originalSelftext}</div>
+    </div>`;
   }
   
-  // 显示翻译后的评论
+  // 评论
   if (post.analysis?.commentsTranslation) {
     content += `<div class="post-comments">
       <h4 style="display: flex; align-items: center; gap: 8px; cursor: pointer;" class="comments-toggle">
-        ${t('comments')} <span class="toggle-icon">▼</span>
+        ${t('comments')} (${post.comments.length}) <span class="toggle-icon">▼</span>
       </h4>
       <div class="comments-content" style="max-height: 100px; overflow: hidden; transition: max-height 0.3s ease;">
-        <div class="comments-translation">${post.analysis.commentsTranslation}</div>
+        <div class="translated-content" style="display: block;">
+          <ul>
+            ${post.analysis.commentsTranslation.split('\n').filter(line => line.trim()).map((line, index) => `
+              <li class="comment">
+                <div class="comment-body">${line.trim()}</div>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+        <div class="original-content" style="display: none;">
+          <ul>
+            ${post.comments ? post.comments.map(comment => `
+              <li class="comment">
+                <div class="comment-author">${comment.author}</div>
+                <div class="comment-body">${comment.body}</div>
+                <div class="comment-meta">Score: ${comment.score}</div>
+              </li>
+            `).join('') : ''}
+          </ul>
+        </div>
       </div>
       <div class="comments-footer" style="margin-top: 8px; font-size: 12px; color: #666;">
         <span class="expand-link" style="cursor: pointer; color: #0066cc;">${t('expand')}</span>
       </div>
     </div>`;
   } else if (post.comments && post.comments.length > 0) {
-    // 如果没有评论翻译，显示原始评论
     content += `<div class="post-comments">
       <h4 style="display: flex; align-items: center; gap: 8px; cursor: pointer;" class="comments-toggle">
         ${t('comments')} (${post.comments.length}) <span class="toggle-icon">▼</span>
       </h4>
       <div class="comments-content" style="max-height: 100px; overflow: hidden; transition: max-height 0.3s ease;">
-        <ul>`;
-    
-    post.comments.forEach(comment => {
-      content += `<li class="comment">
-        <div class="comment-author">${comment.author}</div>
-        <div class="comment-body">${comment.body}</div>
-        <div class="comment-meta">Score: ${comment.score}</div>
-      </li>`;
-    });
-    
-    content += `</ul>
+        <ul>
+          ${post.comments.map(comment => `
+            <li class="comment">
+              <div class="comment-author">${comment.author}</div>
+              <div class="comment-body">${comment.body}</div>
+              <div class="comment-meta">Score: ${comment.score}</div>
+            </li>
+          `).join('')}
+        </ul>
       </div>
       <div class="comments-footer" style="margin-top: 8px; font-size: 12px; color: #666;">
         <span class="expand-link" style="cursor: pointer; color: #0066cc;">${t('expand')}</span>
@@ -595,12 +1248,9 @@ function getColumnSelectorHTML() {
 // 添加列按钮事件监听器
 function addColumnButtonListeners() {
   const buttons = document.querySelectorAll('.column-btn');
-  console.log('Adding column button listeners. Buttons found:', buttons.length);
   buttons.forEach(btn => {
-    console.log('Adding listener to button:', btn.dataset.columns);
     btn.addEventListener('click', function() {
       const columns = parseInt(this.dataset.columns);
-      console.log('Column button clicked:', columns);
       setColumnLayout(columns);
     });
   });
@@ -608,7 +1258,6 @@ function addColumnButtonListeners() {
 
 // 设置列布局
 function setColumnLayout(columns) {
-  console.log('setColumnLayout called with:', columns);
   const resultsContainer = document.getElementById('resultsContainer');
   if (resultsContainer) {
     // 检查是否包含空内容提示
@@ -633,17 +1282,13 @@ function setColumnLayout(columns) {
   
   // 更新按钮状态
   const buttons = document.querySelectorAll('.column-btn');
-  console.log('Updating button states. Buttons found:', buttons.length);
   buttons.forEach(btn => {
-    console.log('Button data-columns:', btn.dataset.columns);
     if (parseInt(btn.dataset.columns) === columns) {
-      console.log('Setting active state for button:', btn.dataset.columns);
       btn.classList.add('active');
       btn.style.borderColor = '#007bff';
       btn.style.backgroundColor = '#007bff';
       btn.style.color = 'white';
     } else {
-      console.log('Setting inactive state for button:', btn.dataset.columns);
       btn.classList.remove('active');
       btn.style.borderColor = '#ccc';
       btn.style.backgroundColor = '#f5f5f5';
@@ -697,6 +1342,9 @@ function crawlComplete(data) {
     document.getElementById('analyzeButton').addEventListener('click', () => {
       analyzeAllPosts();
     });
+    
+    // 确保翻译图标显示
+    ensureTranslateButton();
   }
   
   // 移除旧的更新按钮（如果存在）
@@ -865,7 +1513,6 @@ function loadSavedResults() {
         
         // 检查响应是否成功
         if (chrome.runtime.lastError) {
-          console.error('获取爬取结果失败:', chrome.runtime.lastError);
           // 显示错误信息
           const resultsContainer = document.getElementById('resultsContainer');
           resultsContainer.innerHTML = `<div class="empty-content">
@@ -1101,8 +1748,7 @@ function loadSavedResults() {
     });
     });  // 修复：添加缺失的关闭括号
   } catch (error) {
-    console.error('Error loading saved results:', error);
-    // 出错时显示空白列表
+   // 出错时显示空白列表
     const resultsContainer = document.getElementById('resultsContainer');
     resultsContainer.innerHTML = `<div class="empty-content">
       <div class="empty-icon">❌</div>
@@ -1133,10 +1779,9 @@ function translateSubredditName(subredditName, callback) {
       }
     });
   } catch (error) {
-    console.error('Error translating subreddit name:', error);
-    callback(subredditName); // 翻译失败时返回原始名称
+  }  callback(subredditName); // 翻译失败时返回原始名称
   }
-}
+
 
 // 检查AI系统设置
 function checkAiSystem() {
@@ -1250,13 +1895,11 @@ function checkAiSystem() {
           showAiSetupPrompt();
         }
       } catch (error) {
-        console.error('Error processing AI system settings:', error);
-        // 出错时显示开始按钮
+    }    // 出错时显示开始按钮
         showStartButton();
       }
-    });
+    );
   } catch (error) {
-    console.error('Error checking AI system:', error);
     // 出错时显示开始按钮
     showStartButton();
   }
@@ -1279,8 +1922,6 @@ function testAiSystem(aiConfig, callback) {
       }
     });
   } catch (error) {
-    console.error('Error testing AI system:', error);
-    // 出错时认为AI系统不可用
     callback(false);
   }
 }
@@ -1555,8 +2196,7 @@ async function analyzeWithAiWeb(aiWebPlatforms) {
         }
         return { success: false, postIndex, error: result.error };
       } catch (error) {
-        console.error('AI网页版分析失败:', error);
-        return { success: false, postIndex, error: error.message };
+         return { success: false, postIndex, error: error.message };
       }
     };
     
@@ -1576,8 +2216,7 @@ async function analyzeWithAiWeb(aiWebPlatforms) {
             analyzedCount++;
           }
         } catch (error) {
-          console.error(`分析帖子 ${currentIndex + 1} 失败:`, error);
-        }
+          }
         
         // 更新状态
         statusMessage.textContent = `已分析 ${analyzedCount}/${totalPosts} 个帖子...`;
@@ -1716,12 +2355,10 @@ function loadColumnPreference() {
     chrome.storage.local.get(['preferredColumns'], (result) => {
       console.log('Retrieved preferredColumns:', result.preferredColumns);
       const columns = result.preferredColumns || 2;
-      console.log('Using columns:', columns);
       setColumnLayout(columns);
     });
   } catch (e) {
-    console.error('加载列偏好失败:', e);
-    setColumnLayout(2);
+   setColumnLayout(2);
   }
 }
 
@@ -1798,11 +2435,80 @@ function initCommentsToggle() {
       // 模拟点击评论标题
       toggle.click();
     }
+    
+    // 处理原文/翻译切换按钮点击
+    if (e.target.closest('.toggle-original-btn')) {
+      const toggleBtn = e.target.closest('.toggle-original-btn');
+      const postItem = toggleBtn.closest('.post-item');
+      const showOriginal = postItem.dataset.showOriginal === 'true';
+      
+      // 切换显示状态
+      postItem.dataset.showOriginal = (!showOriginal).toString();
+      
+      // 更新按钮标题
+      toggleBtn.title = showOriginal ? (t('showOriginal') || '显示原文') : (t('showTranslation') || '显示翻译');
+      
+      // 切换标题
+      const titleText = postItem.querySelector('.post-title-text');
+      const post = getPostById(postItem.dataset.postId);
+      if (titleText && post) {
+        const originalTitle = post.title;
+        const translatedTitle = post.analysis?.titleTranslation || post.translation || post.title;
+        titleText.textContent = showOriginal ? originalTitle : translatedTitle;
+      }
+      
+      // 切换正文
+      const postContent = postItem.querySelector('.post-content');
+      if (postContent) {
+        const originalContent = postContent.querySelector('.original-content');
+        const translatedContent = postContent.querySelector('.translated-content');
+        if (originalContent && translatedContent) {
+          originalContent.style.display = showOriginal ? 'block' : 'none';
+          translatedContent.style.display = showOriginal ? 'none' : 'block';
+        }
+      }
+      
+      // 切换评论
+      const postComments = postItem.querySelector('.post-comments');
+      if (postComments) {
+        const originalContent = postComments.querySelector('.original-content');
+        const translatedContent = postComments.querySelector('.translated-content');
+        if (originalContent && translatedContent) {
+          originalContent.style.display = showOriginal ? 'block' : 'none';
+          translatedContent.style.display = showOriginal ? 'none' : 'block';
+        }
+      }
+    }
   });
 }
 
 // 页面加载完成后初始化评论折叠功能
 document.addEventListener('DOMContentLoaded', initCommentsToggle);
+
+// 根据帖子ID获取帖子数据
+function getPostById(postId) {
+  try {
+    const resultsContainer = document.getElementById('resultsContainer');
+    if (!resultsContainer) return null;
+    
+    // 遍历所有帖子项
+    const postItems = resultsContainer.querySelectorAll('.post-item');
+    for (const postItem of postItems) {
+      if (postItem.dataset.postId === postId) {
+        // 从页面数据中获取帖子信息
+        // 这里简化处理，实际应该从保存的结果中获取
+        return {
+          id: postId,
+          title: postItem.querySelector('.post-title-text')?.textContent || '',
+          selftext: postItem.querySelector('.original-content')?.textContent || ''
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
 
 // 初始化滚动百分比功能
 function initScrollPercentage() {

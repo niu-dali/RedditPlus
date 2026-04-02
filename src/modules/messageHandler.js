@@ -216,11 +216,65 @@ function handleMessage(message, sender, sendResponse) {
       });
       return true; // 异步响应
     
-    case 'savePostTranslation':
-      savePostTranslation(message.subreddit, message.post).then(saveTranslationResult => {
-        sendResponse({ success: saveTranslationResult.success });
+    case 'translate':
+      getUserSettings().then(settings => {
+        // 使用翻译模块进行翻译
+        return translator.translate(message.text, message.targetLanguage, settings.aiSystems && settings.aiSystems.length > 0 ? settings.aiSystems[0] : null);
+      }).then(translation => {
+        sendResponse({ translation: translation });
       }).catch(error => {
-        sendResponse({ error: error.message });
+        console.error('翻译失败:', error);
+        sendResponse({ translation: message.text }); // 失败时返回原文
+      });
+      return true; // 异步响应
+    
+    case 'getPost':
+      // 获取特定帖子数据
+      const storageKey = `crawlResults_${message.subreddit}`;
+      chrome.storage.local.get(storageKey, (result) => {
+        const subredditData = result[storageKey];
+        if (subredditData && subredditData.data) {
+          const posts = subredditData.data;
+          const post = posts.find(p => p.id === message.postId);
+          if (post) {
+            sendResponse({ post: post });
+          } else {
+            sendResponse({ error: '帖子不存在' });
+          }
+        } else {
+          sendResponse({ error: '板块不存在' });
+        }
+      });
+      return true; // 异步响应
+    
+    case 'savePostTranslation':
+      // 保存帖子翻译结果
+      const saveStorageKey = `crawlResults_${message.subreddit}`;
+      chrome.storage.local.get(saveStorageKey, (result) => {
+        const subredditData = result[saveStorageKey];
+        let posts = [];
+        
+        if (subredditData && subredditData.data) {
+          posts = subredditData.data;
+        }
+        
+        // 找到并更新帖子
+        const postIndex = posts.findIndex(p => p.id === message.post.id);
+        if (postIndex !== -1) {
+          posts[postIndex] = message.post;
+        } else {
+          posts.push(message.post);
+        }
+        
+        // 保存更新后的数据
+        const dataWithTimestamp = {
+          data: posts,
+          timestamp: Date.now()
+        };
+        
+        chrome.storage.local.set({ [saveStorageKey]: dataWithTimestamp }, () => {
+          sendResponse({ success: true });
+        });
       });
       return true; // 异步响应
     
